@@ -7,7 +7,8 @@ Main.init = function()
 	Main.game.init()
 end
 
--- On keyboard button press; check lwjgl docs for masks
+-- On keyboard button press; see link below for values
+-- https://jogamp.org/deployment/v2.0.2/javadoc/jogl/javadoc/constant-values.html
 Main.onButton = function(btn)
 	Main.game.onButton(btn)
 end

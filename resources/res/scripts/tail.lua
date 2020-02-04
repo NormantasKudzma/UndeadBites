@@ -8,6 +8,7 @@ T.follow = function(x, y, tail)
 	
 	local oldx, oldy = tail.grid.find(tail)
 	tail.grid.move(x, y, tail)
+	tail.object:setVisible(true)
 	
 	if (oldx ~= nil and oldy ~= nil and tail.tailNext) then
 		tail.tailNext.follow(oldx, oldy)
@@ -26,6 +27,7 @@ T.create = function(grid)
 	tail.follow = function(x, y) T.follow(x, y, tail) end
 	
 	tail.object = GameObject.new()
+	tail.object:setVisible(false)
 	tail.object:setSprite(Sprite:fromSheet(0, 64, 64, 64, Paths.RESOURCES .. 'objs.png'))
 	BaseGame:addObject(tail.object)
 	

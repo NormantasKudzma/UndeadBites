@@ -15,7 +15,7 @@ R.create = function(w, h)
 	R.width = w
 	R.height = h
 	R.sizeY = (2.0 - 0.1) / R.height
-	R.sizeX = R.sizeY -- / aspect
+	R.sizeX = R.sizeY / Engine.aspectRatio
 end
 
 -- Returns object at grid position or false if out of bounds

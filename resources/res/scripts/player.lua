@@ -27,6 +27,9 @@ P.create = function(x, y, grid)
 	
 	BaseGame:addObject(P.object)
 	
+	P.x = x
+	P.y = y
+	
 	P.grid = grid
 	P.grid.move(x, y, P)
 	
@@ -60,6 +63,37 @@ P.move = function(dx, dy)
 	P.tail.follow(oldx, oldy)
 	
 	return true
+end
+
+-- Returns true if player can move in any direction
+P.hasMoves = function()
+	local coords = {
+		{ 0, 1 },
+		{ 0, -1 },
+		{ 1, 0 },
+		{ -1, 0 },
+	}
+	
+	local canMoveOn = function(thing)
+		if (thing == false) then
+			return false
+		end
+		
+		if (thing == nil) then
+			return true
+		end
+		
+		return thing.tag == 'Food'
+	end
+	
+	for k, v in pairs(coords) do
+		local thingAt = P.grid.at(P.x + v[1], P.y + v[2])
+		if (canMoveOn(thingAt)) then
+			return true
+		end
+	end
+	
+	return false
 end
 
 ------------

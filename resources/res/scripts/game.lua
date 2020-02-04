@@ -30,6 +30,11 @@ G.nextStep = function()
 	elseif (G.foodSpawner.active < G.foodMax and G.steps % G.foodEveryN == 0) then
 		G.foodSpawner.spawn(G.grid)
 	end
+	
+	if (not G.player.hasMoves()) then
+		print('Game: player is stuck. Game over')
+		BaseGame:restart()
+	end
 end
 
 -- Try to move the player and advance the step counter

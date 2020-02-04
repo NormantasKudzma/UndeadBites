@@ -2,11 +2,8 @@ package com.nk.bites.main;
 
 import java.util.ArrayList;
 
-import org.luaj.vm2.Globals;
-import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.lib.jse.JsePlatform;
-
 import com.ovl.game.BaseGame;
+import com.ovl.graphics.Layer;
 import com.ovl.script.LuaCallable;
 import com.ovl.script.LuaScript;
 import com.ovl.utils.Paths;
@@ -40,12 +37,7 @@ public class Game extends BaseGame {
 		super.init();
 		mPlatform.init();
 		
-		mScript = new LuaScript(Paths.SCRIPTS + "main.lua");
-		assert(mScript.hasContents());
-		mUpdateFun = mScript.getCallable("update");
-		mOnClickFun = mScript.getCallable("onClick");
-		mOnButtonFun = mScript.getCallable("onButton");
-		mScript.call("init");
+		restart();
 	}
 	
 	public void onButton(long mask) {
@@ -70,5 +62,18 @@ public class Game extends BaseGame {
 		}
 
 		mUpdateFun.callSafe(deltaTime);
+	}
+
+	public void restart() {
+		for (Layer l : layers) {
+			l.destroy();
+		}
+		
+		mScript = new LuaScript(Paths.SCRIPTS + "main.lua");
+		assert(mScript.hasContents());
+		mUpdateFun = mScript.getCallable("update");
+		mOnClickFun = mScript.getCallable("onClick");
+		mOnButtonFun = mScript.getCallable("onButton");
+		mScript.call("init");
 	}
 }

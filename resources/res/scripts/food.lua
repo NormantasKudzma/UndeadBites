@@ -57,7 +57,7 @@ F.spawn = function(grid)
 	food.eat = function() F.eat(food) end
 	food.object = F.makeObject()
 	
-	grid.put(x, y, food)
+	grid.move(x, y, food)
 	
 	F.active = F.active + 1
 	print('Food: spawned, now ', F.active)

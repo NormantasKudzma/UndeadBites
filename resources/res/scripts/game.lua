@@ -44,8 +44,7 @@ G.init = function()
 	G.grid.create(9, 9)
 
 	G.player = dofile(Paths.SCRIPTS .. 'player.lua')
-	G.player.create(G.grid)
-	G.player.move(5, 5)
+	G.player.create(5, 5, G.grid)
 	
 	G.foodSpawner = dofile(Paths.SCRIPTS .. 'food.lua')
 	for i = 1, G.foodInitial do

@@ -9,6 +9,22 @@ local P = {
 }
 ------------
 
+local makeSprite = function(ix, iy, w, h)
+	return Sprite:fromSheet(ix * 64, iy * 64, 64, 64, Paths.RESOURCES .. 'snake.png')
+end
+
+local sprites = {
+	[100 + 2] =	makeSprite(4, 1), -- Top
+	[100 + 1] =	makeSprite(5, 1), -- Right
+	[100 - 2] =	makeSprite(0, 2), -- Bot
+	[100 - 1] =	makeSprite(1, 2), -- Left
+}
+
+local selectSprite = function(dx, dy)
+	return sprites[100 + dx * 1 + dy * 2]
+end
+
+-- Adds new tail segment
 P.makeTail = function()
 	local last = P.tail
 	while (last.tailNext ~= nil) do
@@ -23,7 +39,7 @@ P.create = function(x, y, grid)
 	P.tailSpawner = dofile(Paths.SCRIPTS .. 'tail.lua')
 	
 	P.object = GameObject.new()
-	P.object:setSprite(Sprite:fromSheet(0, 0, 64, 64, Paths.RESOURCES .. 'objs.png'))
+	P.object:setSprite(selectSprite(0, 1))
 	
 	BaseGame:addObject(P.object)
 	
@@ -60,7 +76,8 @@ P.move = function(dx, dy)
 	P.y = P.y + dy
 	P.grid.move(P.x, P.y, P)
 	
-	P.tail.follow(oldx, oldy)
+	P.tail.follow(oldx, oldy, P)
+	P.object:setSprite(selectSprite(P.x - oldx, P.y - oldy))
 	
 	return true
 end

@@ -24,6 +24,10 @@ G.nextStep = function()
 	G.steps = G.steps + 1
 	print('Game: steps', G.steps)
 
+	for i=#G.stepListeners, 1, -1 do
+		G.stepListeners[i].step()
+	end
+	
 	-- No food on screen, spawn another
 	if (G.foodSpawner.active == 0) then
 		G.foodSpawner.spawnFood(G.grid)
@@ -35,10 +39,6 @@ G.nextStep = function()
 	if (not G.player.hasMoves()) then
 		print('Game: player is stuck. Game over')
 		BaseGame:restart()
-	end
-	
-	for i=#G.stepListeners, 1, -1 do
-		G.stepListeners[i].step()
 	end
 end
 
@@ -63,6 +63,8 @@ G.move = function (dx, dy)
 end
 
 G.init = function()
+	BaseGame:addLayer('Player', 1000)
+
 	G.grid = dofile(Paths.SCRIPTS .. 'grid.lua')
 	G.grid.create(9, 9)
 
@@ -90,6 +92,14 @@ end
 
 G.onClick = function(pos)
 	--stub
+end
+
+G.tableShuffle = function(tbl)
+	for i = #tbl, 2, -1 do
+		local j = math.random(i)
+		tbl[i], tbl[j] = tbl[j], tbl[i]
+	end
+	return tbl
 end
 
 ------------

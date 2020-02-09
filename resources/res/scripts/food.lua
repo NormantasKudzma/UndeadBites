@@ -35,24 +35,66 @@ F.makeObject = function(sprite)
 		local object = GameObject.new()
 		object:setSprite(sprite:clone())
 		BaseGame:addObject(object)
-		print('create new obj..')
 		return object
 	else
 		local object = table.remove(F.unused)
 		object:setSprite(sprite:clone())
 		object:setVisible(true)
-		print('-- obj, now ', #F.unused)
 		return object
 	end
 end
 
+-- Spawn bones in place of food which will later turn into a zombie
 F.releaseObject = function(obj)
 	obj:setVisible(false)
 	table.insert(F.unused, obj)
-	print('++ obj, now ', #F.unused)
 end
 
+-- Spawn zombie at a given position
 F.makeZombie = function(x, y)
+	local zombie = {
+		tag = 'Zombie',
+		object = nil,
+		moveSteps = 5,
+		stepsRemain = 5,
+		step = nil
+	}
+	
+	zombie.step = function()
+		zombie.stepsRemain = zombie.stepsRemain - 1
+		if (zombie.stepsRemain <= 0) then
+			zombie.stepsRemain = zombie.moveSteps
+			
+			local canMove = function(dx, dy)
+				local thingAt = F.grid.at(x + dx, y + dy)
+				if (thingAt == false) then
+					return false
+				end
+				
+				return thingAt == nil
+			end
+			
+			local movex = F.game.tableShuffle({ -1, 0, 1 })
+			local movey = F.game.tableShuffle({ -1, 0, 1 })
+			for i=1, 3 do
+				local dx = movex[i]
+				local dy = movey[i]
+				
+				if (math.abs(dx) ~= math.abs(dy) and canMove(dx, dy)) then
+					x = x + dx
+					y = y + dy
+					F.grid.move(x, y, zombie)
+					print('Zombie: move by ', dx, dy)
+					return
+				end
+			end
+		end
+	end
+	
+	zombie.object = F.makeObject(F.spriteZombie)
+	F.grid.move(x, y, zombie)
+	F.game.addStepListener(zombie)
+
 	print('Zombie: spawn at', x, y)
 end
 

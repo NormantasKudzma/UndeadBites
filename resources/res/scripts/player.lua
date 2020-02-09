@@ -46,7 +46,7 @@ P.create = function(x, y, grid)
 	P.object = GameObject.new()
 	selectSprite(0, 1)
 	
-	BaseGame:addObject(P.object)
+	BaseGame:addObject(P.object, 'Player')
 	
 	P.grid.move(x, y, P)
 	
@@ -67,6 +67,9 @@ P.move = function(dx, dy)
 			P.makeTail()
 		elseif (thingAt.tag == 'Bones') then
 			thingAt.moveOffGrid()
+		elseif (thingAt.tag == 'Zombie') then
+			BaseGame:restart()
+			return false
 		elseif (thingAt.tag == 'Tail') then
 			return false
 		end

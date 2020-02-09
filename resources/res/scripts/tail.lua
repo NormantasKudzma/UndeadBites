@@ -95,7 +95,7 @@ T.create = function(grid)
 	
 	tail.object = GameObject.new()
 	tail.object:setVisible(false)
-	BaseGame:addObject(tail.object)
+	BaseGame:addObject(tail.object, 'Player')
 	
 	return tail
 end

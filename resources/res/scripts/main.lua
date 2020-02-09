@@ -21,7 +21,7 @@ end
 
 --
 Main.update = function(dt)
-
+	Main.game.update(dt)
 end
 
 return Main

@@ -7,6 +7,7 @@ local F = {
 	activeFood = 0,
 	activeBerries = 0,
 	activeZombies = {},
+	activeBones = {},
 	
 	spriteFood = nil,
 	spriteBones = nil,
@@ -41,6 +42,7 @@ F.makeObject = function(sprite)
 	if (#F.unused <= 0) then
 		local object = GameObject.new()
 		object:setSprite(sprite:clone())
+		object:setScale(F.grid.spriteSX, F.grid.spriteSY)
 		BaseGame:addObject(object)
 		return object
 	else
@@ -92,7 +94,8 @@ F.makeZombie = function(x, y)
 					x = x + dx
 					y = y + dy
 					if (thingAt ~= nil and (thingAt.tag == 'Player' or thingAt.tag == 'Tail')) then
-						BaseGame:restart()
+						F.game.restart()
+						zombie.object:setPosition(F.grid.positionOf(x, y))
 					else
 						F.grid.move(x, y, zombie)
 					end
@@ -130,15 +133,21 @@ F.makeBones = function(food)
 		onGrid = false,
 		moveToGrid = nil,
 		moveOffGrid = nil,
+		die = nil,
 	}
+	
+	bones.die = function()
+		F.releaseObject(bones.object)
+		F.game.removeStepListener(bones)
+		bones.moveOffGrid()
+	end
 	
 	bones.step = function()
 		if (F.grid.at(fx, fy) == nil) then
 			bones.stepsRemain = bones.stepsRemain - 1
 			if (bones.stepsRemain <= 0) then
-				F.releaseObject(bones.object)
-				F.game.removeStepListener(bones)
-				bones.moveOffGrid()
+				bones.die()
+				table.remove(F.activeBones, F.game.tableIndexOf(F.activeBones, bones))
 				F.makeZombie(fx, fy)
 			end
 		end
@@ -163,6 +172,7 @@ F.makeBones = function(food)
 	bones.object = F.makeObject(F.spriteBones)
 	bones.object:setPosition(F.grid.positionOf(fx, fy))
 	F.game.addStepListener(bones)
+	table.insert(F.activeBones, bones)
 	print('Bones: spawned at ', fx, fy)
 end
 
@@ -215,6 +225,11 @@ F.spawnBerry = function()
 		end
 		F.activeZombies = {}
 		
+		for i=1, #F.activeBones do
+			F.activeBones[i].die()
+		end
+		F.activeBones = {}
+		
 		F.grid.removeObj(food)
 		F.releaseObject(food.object)
 		F.activeBerries = math.max(0, F.activeBerries - 1)
@@ -226,6 +241,7 @@ F.spawnBerry = function()
 	F.grid.move(x, y, food)
 	
 	F.activeBerries = F.activeBerries + 1
+	print('Berry: spawned at ', x, y)
 end
 
 ------------

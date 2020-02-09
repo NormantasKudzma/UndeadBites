@@ -24,6 +24,21 @@ R.create = function(w, h)
 	v:pixelToNormal()
 	R.spriteSX = R.sizeX / v.x
 	R.spriteSY = R.sizeY / v.y
+	
+	local tiles = {
+		Sprite:fromSheet(0, 128, 64, 64, Paths.RESOURCES .. 'objs.png'),
+		Sprite:fromSheet(64, 128, 64, 64, Paths.RESOURCES .. 'objs.png'),
+	}
+	
+	for i=0, w * h do
+		local obj = GameObject.new()
+		obj:setSprite(tiles[i % 2 + 1]:clone())
+		local x, y = R.fromIndex(i)
+		x, y = R.positionOf(x, y)
+		obj:setPosition(x, y)
+		obj:setScale(R.spriteSX, R.spriteSY)
+		BaseGame:addObject(obj, 'Background')
+	end
 end
 
 -- Returns object at grid position or false if out of bounds
@@ -42,6 +57,11 @@ end
 -- Returns index into grid array from coordinates
 R.index = function(x, y)
 	return y * R.width + x
+end
+
+R.fromIndex = function(index)
+	return index - math.floor(index / R.width) * R.width,
+		math.floor(index / R.width)
 end
 
 -- Puts and positions given thing at coordinates, returns old object at that position or false if failed

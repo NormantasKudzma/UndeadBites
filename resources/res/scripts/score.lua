@@ -18,36 +18,40 @@ S.init = function(game)
 	
 	local text = SimpleFont:create('Score')
 	text:setPosition(x, y)
-	BaseGame:addObject(text)
+	BaseGame:addObject(text, 'Hud')
 	
 	S.scoreText = SimpleFont:create('0')
 	S.scoreText:setPosition(x, y - 0.11)
-	BaseGame:addObject(S.scoreText)
+	BaseGame:addObject(S.scoreText, 'Hud')
 	
 	S.multiplierText = SimpleFont:create('')
-	S.multiplierText:setPosition(x, y - 0.26)
-	BaseGame:addObject(S.multiplierText)
+	S.multiplierText:setPosition(x, y - 0.56)
+	BaseGame:addObject(S.multiplierText, 'Hud')
 end
 
 S.onFoodEaten = function()
 	S.eaten = S.eaten + 1
 	if (S.eaten >= S.multiplierStep) then
-		S.multiplier = S.multiplier + 2
 		S.eaten = 0
+		S.multiplier = S.nextMultiplier()
 		S.multiplierText:setText('x' .. tostring(S.multiplier))
 	end
 	
-	S.score = S.score + S.eatScore * S.multiplier
+	S.score = S.score + math.floor(S.eatScore * S.multiplier)
 	S.scoreText:setText(tostring(S.score))
 end
 
 S.onBerryEaten = function()
 	S.eaten = 0
-	S.multiplier = 0
+	S.multiplier = 1
 	S.multiplierText:setVisible(false)
 	
 	S.score = S.score + S.eatScore
 	S.scoreText:setText(tostring(S.score))
+end
+
+S.nextMultiplier = function()
+	return S.multiplier * 1.9
 end
 
 ------------

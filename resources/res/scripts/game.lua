@@ -41,16 +41,18 @@ G.nextStep = function()
 		G.foodSpawner.spawnFood()
 	end
 	
-	G.berriesCounter = G.berriesCounter + 1
-	if (G.foodSpawner.activeBerries < G.berriesMax and G.berriesCounter >= G.berriesEveryN) then
-		G.berriesCounter = 0
-		G.berriesEveryN = G.berriesEveryN * 1.16
-		G.foodSpawner.spawnBerry()
+	if (G.foodSpawner.activeBerries < G.berriesMax) then
+		G.berriesCounter = G.berriesCounter + 1
+		if (G.berriesCounter >= G.berriesEveryN) then
+			G.berriesCounter = 0
+			G.berriesEveryN = G.berriesEveryN * 1.16
+			G.foodSpawner.spawnBerry()
+		end
 	end
 	
 	if (not G.player.hasMoves()) then
 		print('Game: player is stuck. Game over')
-		BaseGame:restart()
+		G.restart()
 	end
 end
 
@@ -69,22 +71,28 @@ end
 
 -- Try to move the player and advance the step counter
 G.move = function (dx, dy)
+	if (G.restartPending) then
+		return
+	end
+	
 	if (G.player.move(dx, dy)) then
 		G.nextStep()
 	end
 end
 
 G.init = function()
+	BaseGame:addLayer('Hud', 5000)
 	BaseGame:addLayer('Player', 1000)
+	BaseGame:addLayer('Background', -1000)
 
 	G.score = dofile(Paths.SCRIPTS .. 'score.lua')
 	G.score.init(G)
 	
 	G.grid = dofile(Paths.SCRIPTS .. 'grid.lua')
-	G.grid.create(9, 9)
+	G.grid.create(11, 11)
 
 	G.player = dofile(Paths.SCRIPTS .. 'player.lua')
-	G.player.create(5, 5, G.grid)
+	G.player.create(5, 5, G)
 	
 	G.foodSpawner = dofile(Paths.SCRIPTS .. 'food.lua')
 	G.foodSpawner.init(G)
@@ -115,6 +123,34 @@ G.tableShuffle = function(tbl)
 		tbl[i], tbl[j] = tbl[j], tbl[i]
 	end
 	return tbl
+end
+
+G.tableIndexOf = function(tbl, obj)
+	for i=1, #tbl do
+		if (tbl[i] == obj) then
+			return i
+		end
+	end
+end
+
+G.restart = function()
+	if (G.restartPending) then
+		return
+	end
+	G.restartPending = true
+	G.timeUntilRestart = 1.5
+	
+	local gameOverText = SimpleFont:create('Game over')
+	BaseGame:addObject(gameOverText, 'Hud')
+end
+
+G.update = function(dt)
+	if (G.restartPending) then
+		G.timeUntilRestart = G.timeUntilRestart - dt
+		if (G.timeUntilRestart <= 0) then
+			BaseGame:restart()
+		end	
+	end
 end
 
 ------------

@@ -1,4 +1,5 @@
 local P = {
+	game = nil,
 	grid = nil,
 	object = nil,
 	x = 0,
@@ -36,8 +37,9 @@ P.makeTail = function()
 end
 
 -- Create and spawn player on given grid
-P.create = function(x, y, grid)
-	P.grid = grid
+P.create = function(x, y, game)
+	P.game = game
+	P.grid = game.grid
 	P.x = x
 	P.y = y
 	
@@ -50,7 +52,7 @@ P.create = function(x, y, grid)
 	
 	P.grid.move(x, y, P)
 	
-	P.tail = P.tailSpawner.create(grid)
+	P.tail = P.tailSpawner.create(P.grid)
 end
 
 -- Attempt to move player to this direction
@@ -68,7 +70,7 @@ P.move = function(dx, dy)
 		elseif (thingAt.tag == 'Bones') then
 			thingAt.moveOffGrid()
 		elseif (thingAt.tag == 'Zombie') then
-			BaseGame:restart()
+			P.game.restart()
 			return false
 		elseif (thingAt.tag == 'Tail') then
 			return false

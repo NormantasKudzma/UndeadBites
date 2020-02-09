@@ -4,6 +4,7 @@ local G = {
 	foodSpawner = nil,
 	
 	steps = 0,
+	stepListeners = {},
 	
 	foodInitial = 2,
 	foodMax = 3,
@@ -25,15 +26,32 @@ G.nextStep = function()
 
 	-- No food on screen, spawn another
 	if (G.foodSpawner.active == 0) then
-		G.foodSpawner.spawn(G.grid)
+		G.foodSpawner.spawnFood(G.grid)
 	-- Enough steps passed and no more than max food on screen
 	elseif (G.foodSpawner.active < G.foodMax and G.steps % G.foodEveryN == 0) then
-		G.foodSpawner.spawn(G.grid)
+		G.foodSpawner.spawnFood(G.grid)
 	end
 	
 	if (not G.player.hasMoves()) then
 		print('Game: player is stuck. Game over')
 		BaseGame:restart()
+	end
+	
+	for i=#G.stepListeners, 1, -1 do
+		G.stepListeners[i].step()
+	end
+end
+
+G.addStepListener = function(obj)
+	table.insert(G.stepListeners, obj)
+end
+
+G.removeStepListener = function(obj)
+	for i=1, #G.stepListeners do
+		if (G.stepListeners[i] == obj) then
+			table.remove(G.stepListeners, i)
+			return
+		end
 	end
 end
 
@@ -52,8 +70,9 @@ G.init = function()
 	G.player.create(5, 5, G.grid)
 	
 	G.foodSpawner = dofile(Paths.SCRIPTS .. 'food.lua')
+	G.foodSpawner.init(G)
 	for i = 1, G.foodInitial do
-		G.foodSpawner.spawn(G.grid)
+		G.foodSpawner.spawnFood()
 	end
 end
 

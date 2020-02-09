@@ -3,6 +3,7 @@ local Main = {}
 --
 Main.init = function()
 	print('Main script: init')
+	
 	Main.game = dofile(Paths.SCRIPTS .. 'game.lua')
 	Main.game.init()
 end

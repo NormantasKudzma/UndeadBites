@@ -13,6 +13,7 @@ import com.ovl.controls.arm.MouseController;
 import com.ovl.engine.EngineConfig;
 import com.ovl.engine.OverloadEngine;
 import com.ovl.engine.arm.OverloadEngineArm;
+import com.ovl.utils.Paths;
 import com.ovl.utils.Vector2;
 
 public class BitesMain {

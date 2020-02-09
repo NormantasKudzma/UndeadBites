@@ -4,18 +4,26 @@ local R = {
 	height = 0,
 	sizeX = 0,
 	sizeY = 0,
+	
+	spriteSY = 1, -- sprite scale x
+	spriteSX = 1, -- sprite scale y
 }
 ------------
 
 -- Initialize grid with given size
 R.create = function(w, h)
 	print('Grid: create with size', w, h)
-
+	
 	R.spots = {}
 	R.width = w
 	R.height = h
-	R.sizeY = (2.0 - 0.1) / R.height
-	R.sizeX = R.sizeY / Engine.aspectRatio
+	R.sizeY = 2.0 / R.height
+	R.sizeX = R.sizeY / 2.0
+	
+	local v = Vector2.new(64.0, 64.0)
+	v:pixelToNormal()
+	R.spriteSX = R.sizeX / v.x
+	R.spriteSY = R.sizeY / v.y
 end
 
 -- Returns object at grid position or false if out of bounds

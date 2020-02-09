@@ -78,6 +78,7 @@ T.follow = function(x, y, prev, tail)
 	
 	if (s ~= nil) then
 		tail.object:setSprite(s:clone())
+		tail.object:setScale(tail.grid.spriteSX, tail.grid.spriteSY)
 	end
 end
 

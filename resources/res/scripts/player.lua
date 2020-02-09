@@ -21,7 +21,8 @@ local sprites = {
 }
 
 local selectSprite = function(dx, dy)
-	return sprites[100 + dx * 1 + dy * 2]
+	P.object:setSprite(sprites[100 + dx * 1 + dy * 2])
+	P.object:setScale(P.grid.spriteSX, P.grid.spriteSY)
 end
 
 -- Adds new tail segment
@@ -36,17 +37,17 @@ end
 
 -- Create and spawn player on given grid
 P.create = function(x, y, grid)
-	P.tailSpawner = dofile(Paths.SCRIPTS .. 'tail.lua')
-	
-	P.object = GameObject.new()
-	P.object:setSprite(selectSprite(0, 1))
-	
-	BaseGame:addObject(P.object)
-	
+	P.grid = grid
 	P.x = x
 	P.y = y
 	
-	P.grid = grid
+	P.tailSpawner = dofile(Paths.SCRIPTS .. 'tail.lua')
+	
+	P.object = GameObject.new()
+	selectSprite(0, 1)
+	
+	BaseGame:addObject(P.object)
+	
 	P.grid.move(x, y, P)
 	
 	P.tail = P.tailSpawner.create(grid)
@@ -64,6 +65,8 @@ P.move = function(dx, dy)
 		if (thingAt.tag == 'Food') then
 			thingAt.eat()
 			P.makeTail()
+		elseif (thingAt.tag == 'Bones') then
+			thingAt.moveOffGrid()
 		elseif (thingAt.tag == 'Tail') then
 			return false
 		end
@@ -77,7 +80,7 @@ P.move = function(dx, dy)
 	P.grid.move(P.x, P.y, P)
 	
 	P.tail.follow(oldx, oldy, P)
-	P.object:setSprite(selectSprite(P.x - oldx, P.y - oldy))
+	selectSprite(P.x - oldx, P.y - oldy)
 	
 	return true
 end
@@ -100,7 +103,7 @@ P.hasMoves = function()
 			return true
 		end
 		
-		return thing.tag == 'Food'
+		return thing.tag == 'Food' or thing.tag == 'Bones'
 	end
 	
 	for k, v in pairs(coords) do

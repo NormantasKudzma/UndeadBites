@@ -2,13 +2,18 @@ local G = {
 	player = nil,
 	grid = nil,
 	foodSpawner = nil,
+	score = nil,
 	
 	steps = 0,
 	stepListeners = {},
 	
-	foodInitial = 2,
+	foodInitial = 4,
 	foodMax = 3,
 	foodEveryN = 10,
+	
+	berriesCounter = 0,
+	berriesEveryN = 20,
+	berriesMax = 1,
 }
 ------------
 
@@ -29,11 +34,18 @@ G.nextStep = function()
 	end
 	
 	-- No food on screen, spawn another
-	if (G.foodSpawner.active == 0) then
-		G.foodSpawner.spawnFood(G.grid)
+	if (G.foodSpawner.activeFood == 0) then
+		G.foodSpawner.spawnFood()
 	-- Enough steps passed and no more than max food on screen
-	elseif (G.foodSpawner.active < G.foodMax and G.steps % G.foodEveryN == 0) then
-		G.foodSpawner.spawnFood(G.grid)
+	elseif (G.foodSpawner.activeFood < G.foodMax and G.steps % G.foodEveryN == 0) then
+		G.foodSpawner.spawnFood()
+	end
+	
+	G.berriesCounter = G.berriesCounter + 1
+	if (G.foodSpawner.activeBerries < G.berriesMax and G.berriesCounter >= G.berriesEveryN) then
+		G.berriesCounter = 0
+		G.berriesEveryN = G.berriesEveryN * 1.16
+		G.foodSpawner.spawnBerry()
 	end
 	
 	if (not G.player.hasMoves()) then
@@ -65,6 +77,9 @@ end
 G.init = function()
 	BaseGame:addLayer('Player', 1000)
 
+	G.score = dofile(Paths.SCRIPTS .. 'score.lua')
+	G.score.init(G)
+	
 	G.grid = dofile(Paths.SCRIPTS .. 'grid.lua')
 	G.grid.create(9, 9)
 

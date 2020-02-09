@@ -1,11 +1,17 @@
 local F = {
 	game = nil,
 	grid = nil,
+	
 	unused = {},
-	active = 0,
+	
+	activeFood = 0,
+	activeBerries = 0,
+	activeZombies = {},
+	
 	spriteFood = nil,
 	spriteBones = nil,
 	spriteZombie = nil,
+	spriteBerry = nil,
 }
 ------------
 
@@ -15,6 +21,7 @@ F.init = function(game)
 	F.spriteFood = Sprite:fromSheet(64, 0, 64, 64, Paths.RESOURCES .. 'objs.png')
 	F.spriteBones = Sprite:fromSheet(64, 64, 64, 64, Paths.RESOURCES .. 'objs.png')
 	F.spriteZombie = Sprite:fromSheet(128, 0, 64, 64, Paths.RESOURCES .. 'objs.png')
+	F.spriteBerry = Sprite:fromSheet(0, 0, 64, 64, Paths.RESOURCES .. 'objs.png')
 end
 
 -- Find a suitable free space on the grid
@@ -57,7 +64,8 @@ F.makeZombie = function(x, y)
 		object = nil,
 		moveSteps = 5,
 		stepsRemain = 5,
-		step = nil
+		step = nil,
+		die = nil,
 	}
 	
 	zombie.step = function()
@@ -65,13 +73,12 @@ F.makeZombie = function(x, y)
 		if (zombie.stepsRemain <= 0) then
 			zombie.stepsRemain = zombie.moveSteps
 			
-			local canMove = function(dx, dy)
-				local thingAt = F.grid.at(x + dx, y + dy)
+			local canMove = function(thingAt)
 				if (thingAt == false) then
 					return false
 				end
 				
-				return thingAt == nil
+				return thingAt == nil or thingAt.tag == 'Player' or thingAt.tag == 'Tail'
 			end
 			
 			local movex = F.game.tableShuffle({ -1, 0, 1 })
@@ -80,10 +87,15 @@ F.makeZombie = function(x, y)
 				local dx = movex[i]
 				local dy = movey[i]
 				
-				if (math.abs(dx) ~= math.abs(dy) and canMove(dx, dy)) then
+				local thingAt = F.grid.at(x + dx, y + dy)
+				if (math.abs(dx) ~= math.abs(dy) and canMove(thingAt)) then
 					x = x + dx
 					y = y + dy
-					F.grid.move(x, y, zombie)
+					if (thingAt ~= nil and (thingAt.tag == 'Player' or thingAt.tag == 'Tail')) then
+						BaseGame:restart()
+					else
+						F.grid.move(x, y, zombie)
+					end
 					print('Zombie: move by ', dx, dy)
 					return
 				end
@@ -91,9 +103,16 @@ F.makeZombie = function(x, y)
 		end
 	end
 	
+	zombie.die = function()
+		F.grid.remove(x, y)
+		F.releaseObject(zombie.object)
+		F.game.removeStepListener(zombie)
+	end
+	
 	zombie.object = F.makeObject(F.spriteZombie)
 	F.grid.move(x, y, zombie)
 	F.game.addStepListener(zombie)
+	table.insert(F.activeZombies, zombie)
 
 	print('Zombie: spawn at', x, y)
 end
@@ -165,15 +184,48 @@ F.spawnFood = function()
 		F.makeBones(food)
 		F.grid.removeObj(food)
 		F.releaseObject(food.object)
-		F.active = math.max(0, F.active - 1)
-		print('Food: eaten, remaining ', F.active)
+		F.activeFood = math.max(0, F.activeFood - 1)
+		F.game.score.onFoodEaten()
+		print('Food: eaten, remaining ', F.activeFood)
 	end
 	food.object = F.makeObject(F.spriteFood)
 	
 	F.grid.move(x, y, food)
 	
-	F.active = F.active + 1
-	print('Food: spawned, now ', F.active)
+	F.activeFood = F.activeFood + 1
+	print('Food: spawned, now ', F.activeFood)
+end
+
+F.spawnBerry = function()
+	local x, y = F.findSpot()
+	if (x == nil or y == nil) then
+		print('Berry: could not find a suitable place to spawn..')
+		return
+	end
+	
+	local food = {
+		tag = 'Food',
+		object = nil,
+		eat = nil,
+	}
+	
+	food.eat = function()
+		for i=1, #F.activeZombies do
+			F.activeZombies[i].die()
+		end
+		F.activeZombies = {}
+		
+		F.grid.removeObj(food)
+		F.releaseObject(food.object)
+		F.activeBerries = math.max(0, F.activeBerries - 1)
+		F.game.score.onBerryEaten()
+		print('Berry: eaten, remaining ', F.activeBerries)
+	end
+	food.object = F.makeObject(F.spriteBerry)
+	
+	F.grid.move(x, y, food)
+	
+	F.activeBerries = F.activeBerries + 1
 end
 
 ------------

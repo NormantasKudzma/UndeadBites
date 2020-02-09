@@ -35,6 +35,7 @@ S.onFoodEaten = function()
 		S.eaten = 0
 		S.multiplier = S.nextMultiplier()
 		S.multiplierText:setText('x' .. tostring(S.multiplier))
+		S.multiplierText:setVisible(true)
 	end
 	
 	S.score = S.score + math.floor(S.eatScore * S.multiplier)

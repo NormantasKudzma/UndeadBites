@@ -52,7 +52,7 @@ end
 T.init = function(grid)
 	T.grid = grid
 
-	T.cache = dofile(Paths.SCRIPTS .. 'spriteCache.lua')
+	T.cache = dofile(Paths.SCRIPTS .. 'objectCache.lua')
 	T.cache.init(grid.spriteSX, grid.spriteSY, 'Player')
 end
 

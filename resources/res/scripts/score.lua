@@ -7,13 +7,17 @@ local S = {
 	eaten = 0,
 	multiplierStep = 3,
 	eatScore = 10,
+	
+	scaleBonus = 0,
+	scaleSpeed = 1,
+	scaleTimer = 0
 }
 ------------
 
 S.init = function(game)
 	S.game = game
 	
-	local x = -0.8
+	local x = -0.7
 	local y = 0.88
 	
 	local text = SimpleFont:create('Score')
@@ -36,6 +40,8 @@ S.onFoodEaten = function()
 		S.multiplier = S.nextMultiplier()
 		S.multiplierText:setText('x' .. tostring(S.multiplier))
 		S.multiplierText:setVisible(true)
+		S.scaleBonus = math.min(S.scaleBonus + 0.1, 0.4)
+		S.scaleSpeed = math.min(S.scaleSpeed * 2, 7)
 		print('multiplier now.. ', S.multiplier)
 	end
 	
@@ -50,6 +56,14 @@ S.onBerryEaten = function()
 	
 	S.score = S.score + S.eatScore
 	S.scoreText:setText(tostring(S.score))
+	
+	S.scaleBonus = 0
+	S.scaleSpeed = 1
+	S.scaleText(1)
+end
+
+S.scaleText = function(s)
+	S.multiplierText:setScale(s, s)
 end
 
 S.nextMultiplier = function()
@@ -57,7 +71,11 @@ S.nextMultiplier = function()
 end
 
 S.update = function(dt)
-
+	S.scaleTimer = S.scaleTimer + dt
+	if (S.multiplier > 1) then
+		local s = 1 + S.scaleBonus * math.abs(math.sin(S.scaleTimer * S.scaleSpeed))
+		S.scaleText(s)
+	end
 end
 
 ------------

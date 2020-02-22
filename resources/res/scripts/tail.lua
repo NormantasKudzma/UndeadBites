@@ -100,5 +100,11 @@ T.create = function(grid)
 	return tail
 end
 
+T.destroy = function(tail, grid)
+	grid.removeObj(tail)
+	BaseGame:removeObject(tail.object, 'Player')
+	tail.object:destroy()
+end
+
 ------------
 return T

@@ -36,6 +36,17 @@ P.makeTail = function()
 	last.tailNext = P.tailSpawner.create(P.grid)
 end
 
+-- Delete all tail except for head + first part
+P.loseTail = function()
+	local last = P.tail.tailNext
+	while (last ~= nil) do
+		local toDelete = last
+		last = last.tailNext
+		P.tailSpawner.destroy(toDelete, P.grid)
+	end
+	P.tail.tailNext = nil
+end
+
 -- Create and spawn player on given grid
 P.create = function(x, y, game)
 	P.game = game
@@ -67,6 +78,9 @@ P.move = function(dx, dy)
 		if (thingAt.tag == 'Food') then
 			thingAt.eat()
 			P.makeTail()
+		elseif (thingAt.tag == 'Berry') then
+			thingAt.eat()
+			P.loseTail()
 		elseif (thingAt.tag == 'Bones') then
 			thingAt.moveOffGrid()
 		elseif (thingAt.tag == 'Zombie') then

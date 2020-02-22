@@ -214,7 +214,7 @@ F.spawnBerry = function()
 	end
 	
 	local food = {
-		tag = 'Food',
+		tag = 'Berry',
 		object = nil,
 		eat = nil,
 	}

@@ -74,7 +74,6 @@ Z.makeZombie = function(x, y)
 			end
 		end
 	
-		print('Zombie ' .. tostring(zombie) .. ' destroy arrow ' .. tostring(zombie.arrow))
 		Z.cacheArrow.destroy(zombie.arrow)
 		zombie.arrow = nil
 		
@@ -117,6 +116,8 @@ Z.makeZombie = function(x, y)
 	end
 	
 	zombie.object = Z.cache.create(Z.spriteZombie)
+	Z.randomizeZombie(zombie.object)
+	
 	Z.grid.move(x, y, zombie)
 	Z.game.addStepListener(zombie)
 	table.insert(Z.activeZombies, zombie)
@@ -131,6 +132,21 @@ Z.killAll = function()
 		Z.activeZombies[i].die()
 	end
 	Z.activeZombies = {}
+end
+
+Z.randomizeZombie = function(obj)
+	local scale = obj:getScale()
+	scale.x = scale.x * Z.game.tableShuffle({ -1, 1 })[1]
+	obj:setScale(scale)
+	
+	obj:setColor(Z.game.tableShuffle({
+		Color.new(1.0f, 1.0f, 1.0f),
+		Color.new(0.9f, 0.9f, 0.9f),
+		Color.new(0.8f, 0.8f, 0.8f),
+		Color.new(0.9f, 0.9f, 0.8f),
+		Color.new(0.9f, 0.8f, 0.9f),
+		Color.new(0.8f, 0.9f, 0.9f),
+	})[1])
 end
 
 ------------

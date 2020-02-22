@@ -35,6 +35,9 @@ end
 
 -- Return object for later reuse
 C.destroy = function(obj)
+	if (obj == nil) then
+		return
+	end
 	obj:setVisible(false)
 	table.insert(C.unused, obj)
 end

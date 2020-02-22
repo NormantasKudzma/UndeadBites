@@ -82,6 +82,7 @@ end
 
 G.init = function()
 	BaseGame:addLayer('Hud',		500)
+	BaseGame:addLayer('ZombieArrow',401)
 	BaseGame:addLayer('Zombie',		400)
 	BaseGame:addLayer('Player',		300)
 	BaseGame:addLayer('Food',		200)

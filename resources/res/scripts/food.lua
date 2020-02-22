@@ -2,7 +2,8 @@ local F = {
 	game = nil,
 	grid = nil,
 	
-	unused = {},
+	miscCache = nil,
+	zombieCache = nil,
 	
 	activeFood = 0,
 	activeBerries = 0,
@@ -19,6 +20,12 @@ local F = {
 F.init = function(game)
 	F.game = game
 	F.grid = game.grid
+	
+	F.miscCache = dofile(Paths.SCRIPTS .. 'spriteCache.lua')
+	F.miscCache.init(F.grid.spriteSX, F.grid.spriteSY, 'Food')
+	F.zombieCache = dofile(Paths.SCRIPTS .. 'spriteCache.lua')
+	F.zombieCache.init(F.grid.spriteSX, F.grid.spriteSY, 'Zombie')
+	
 	F.spriteFood = Sprite:fromSheet(64, 0, 64, 64, Paths.RESOURCES .. 'objs.png')
 	F.spriteBones = Sprite:fromSheet(64, 64, 64, 64, Paths.RESOURCES .. 'objs.png')
 	F.spriteZombie = Sprite:fromSheet(128, 0, 64, 64, Paths.RESOURCES .. 'objs.png')
@@ -35,28 +42,6 @@ F.findSpot = function()
 		end
 	end
 	return nil
-end
-
--- Returns a game object for food; reuses old objects
-F.makeObject = function(sprite)
-	if (#F.unused <= 0) then
-		local object = GameObject.new()
-		object:setSprite(sprite:clone())
-		object:setScale(F.grid.spriteSX, F.grid.spriteSY)
-		BaseGame:addObject(object, 'Food')
-		return object
-	else
-		local object = table.remove(F.unused)
-		object:setSprite(sprite:clone())
-		object:setVisible(true)
-		return object
-	end
-end
-
--- Spawn bones in place of food which will later turn into a zombie
-F.releaseObject = function(obj)
-	obj:setVisible(false)
-	table.insert(F.unused, obj)
 end
 
 -- Spawn zombie at a given position
@@ -108,11 +93,11 @@ F.makeZombie = function(x, y)
 	
 	zombie.die = function()
 		F.grid.remove(x, y)
-		F.releaseObject(zombie.object)
+		F.zombieCache.destroy(zombie.object)
 		F.game.removeStepListener(zombie)
 	end
 	
-	zombie.object = F.makeObject(F.spriteZombie)
+	zombie.object = F.zombieCache.create(F.spriteZombie)
 	F.grid.move(x, y, zombie)
 	F.game.addStepListener(zombie)
 	table.insert(F.activeZombies, zombie)
@@ -137,7 +122,7 @@ F.makeBones = function(food)
 	}
 	
 	bones.die = function()
-		F.releaseObject(bones.object)
+		F.miscCache.destroy(bones.object)
 		F.game.removeStepListener(bones)
 		bones.moveOffGrid()
 	end
@@ -169,7 +154,7 @@ F.makeBones = function(food)
 		F.grid.remove(fx, fy)
 	end
 	
-	bones.object = F.makeObject(F.spriteBones)
+	bones.object = F.miscCache.create(F.spriteBones)
 	bones.object:setPosition(F.grid.positionOf(fx, fy))
 	F.game.addStepListener(bones)
 	table.insert(F.activeBones, bones)
@@ -193,12 +178,12 @@ F.spawnFood = function()
 	food.eat = function()
 		F.makeBones(food)
 		F.grid.removeObj(food)
-		F.releaseObject(food.object)
+		F.miscCache.destroy(food.object)
 		F.activeFood = math.max(0, F.activeFood - 1)
 		F.game.score.onFoodEaten()
 		print('Food: eaten, remaining ', F.activeFood)
 	end
-	food.object = F.makeObject(F.spriteFood)
+	food.object = F.miscCache.create(F.spriteFood)
 	
 	F.grid.move(x, y, food)
 	
@@ -231,12 +216,12 @@ F.spawnBerry = function()
 		F.activeBones = {}
 		
 		F.grid.removeObj(food)
-		F.releaseObject(food.object)
+		F.miscCache.destroy(food.object)
 		F.activeBerries = math.max(0, F.activeBerries - 1)
 		F.game.score.onBerryEaten()
 		print('Berry: eaten, remaining ', F.activeBerries)
 	end
-	food.object = F.makeObject(F.spriteBerry)
+	food.object = F.miscCache.create(F.spriteBerry)
 	
 	F.grid.move(x, y, food)
 	

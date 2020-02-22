@@ -33,7 +33,7 @@ P.makeTail = function()
 		last = last.tailNext
 	end
 	
-	last.tailNext = P.tailSpawner.create(P.grid)
+	last.tailNext = P.tailSpawner.create()
 end
 
 -- Delete all tail except for head + first part
@@ -42,7 +42,7 @@ P.loseTail = function()
 	while (last ~= nil) do
 		local toDelete = last
 		last = last.tailNext
-		P.tailSpawner.destroy(toDelete, P.grid)
+		P.tailSpawner.destroy(toDelete)
 	end
 	P.tail.tailNext = nil
 end
@@ -55,6 +55,7 @@ P.create = function(x, y, game)
 	P.y = y
 	
 	P.tailSpawner = dofile(Paths.SCRIPTS .. 'tail.lua')
+	P.tailSpawner.init(P.grid)
 	
 	P.object = GameObject.new()
 	selectSprite(0, 1)
@@ -63,7 +64,7 @@ P.create = function(x, y, game)
 	
 	P.grid.move(x, y, P)
 	
-	P.tail = P.tailSpawner.create(P.grid)
+	P.tail = P.tailSpawner.create()
 end
 
 -- Attempt to move player to this direction

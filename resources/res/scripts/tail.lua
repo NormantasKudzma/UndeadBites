@@ -1,4 +1,7 @@
-local T = {}
+local T = {
+	grid = nil,
+	cache = nil,
+}
 ------------
 
 local makeSprite = function(ix, iy, w, h)
@@ -45,6 +48,14 @@ sprites.selectCorner = function(oldx, oldy, x, y, prevx, prevy)
 	return sprites[300 + ox * 1 + oy * 2]
 end
 
+-- Initialize tail spawner
+T.init = function(grid)
+	T.grid = grid
+
+	T.cache = dofile(Paths.SCRIPTS .. 'spriteCache.lua')
+	T.cache.init(grid.spriteSX, grid.spriteSY, 'Player')
+end
+
 -- Follow given previous tail, position and setup correct sprite
 T.follow = function(x, y, prev, tail)
 	if (tail.grid.at(x, y) ~= nil) then
@@ -78,32 +89,30 @@ T.follow = function(x, y, prev, tail)
 	
 	if (s ~= nil) then
 		tail.object:setSprite(s:clone())
-		tail.object:setScale(tail.grid.spriteSX, tail.grid.spriteSY)
+		tail.object:setScale(T.grid.spriteSX, T.grid.spriteSY)
 	end
 end
 
-T.create = function(grid)
+T.create = function()
 	local tail = {
 		tag = 'Tail',
 		object = nil,
 		tailNext = nil,
-		grid = grid,
+		grid = T.grid,
 		follow = nil,
 	}
 
 	tail.follow = function(x, y, prev) T.follow(x, y, prev, tail) end
 	
-	tail.object = GameObject.new()
+	tail.object = T.cache.create()
 	tail.object:setVisible(false)
-	BaseGame:addObject(tail.object, 'Player')
 	
 	return tail
 end
 
-T.destroy = function(tail, grid)
-	grid.removeObj(tail)
-	BaseGame:removeObject(tail.object, 'Player')
-	tail.object:destroy()
+T.destroy = function(tail)
+	T.grid.removeObj(tail)
+	T.cache.destroy(tail.object)
 end
 
 ------------

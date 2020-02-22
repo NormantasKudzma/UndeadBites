@@ -119,7 +119,6 @@ end
 R.removeObj = function(thing)
 	local x, y = R.find(thing)
 	if (x == nil or y == nil) then
-		print('Grid: could not find object to remove.. tag: ', thing.tag)
 		return false
 	end
 	

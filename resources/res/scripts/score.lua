@@ -36,6 +36,7 @@ S.onFoodEaten = function()
 		S.multiplier = S.nextMultiplier()
 		S.multiplierText:setText('x' .. tostring(S.multiplier))
 		S.multiplierText:setVisible(true)
+		print('multiplier now.. ', S.multiplier)
 	end
 	
 	S.score = S.score + math.floor(S.eatScore * S.multiplier)
@@ -53,6 +54,10 @@ end
 
 S.nextMultiplier = function()
 	return S.multiplier * 1.9
+end
+
+S.update = function(dt)
+
 end
 
 ------------

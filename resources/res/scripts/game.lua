@@ -81,8 +81,9 @@ G.move = function (dx, dy)
 end
 
 G.init = function()
-	BaseGame:addLayer('Hud', 5000)
-	BaseGame:addLayer('Player', 1000)
+	BaseGame:addLayer('Hud',		500)
+	BaseGame:addLayer('Player',		300)
+	BaseGame:addLayer('Food',		200)
 	BaseGame:addLayer('Background', -1000)
 
 	G.score = dofile(Paths.SCRIPTS .. 'score.lua')
@@ -145,6 +146,8 @@ G.restart = function()
 end
 
 G.update = function(dt)
+	G.score.update(dt)
+	
 	if (G.restartPending) then
 		G.timeUntilRestart = G.timeUntilRestart - dt
 		if (G.timeUntilRestart <= 0) then

@@ -43,7 +43,7 @@ F.makeObject = function(sprite)
 		local object = GameObject.new()
 		object:setSprite(sprite:clone())
 		object:setScale(F.grid.spriteSX, F.grid.spriteSY)
-		BaseGame:addObject(object)
+		BaseGame:addObject(object, 'Food')
 		return object
 	else
 		local object = table.remove(F.unused)
